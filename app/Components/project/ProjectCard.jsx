@@ -169,21 +169,16 @@ const ProjectCard = ({ project, onClick, index }) => {
       <div className="relative overflow-hidden h-48 sm:h-56 md:h-64">
         {/* Loading Skeleton */}
         {!imageLoaded && !imageError && (
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center z-10"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="text-center"
-            >
-              <div className="w-8 h-8 border-3 border-[#001C73] border-t-transparent rounded-full mx-auto mb-2"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center z-10">
+            <div className="text-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-8 h-8 border-3 border-[#001C73] border-t-transparent rounded-full mx-auto mb-2"
+              />
               <p className="text-xs text-gray-500">Loading...</p>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
         
         {/* Project Image */}
