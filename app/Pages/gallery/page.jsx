@@ -1,8 +1,9 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import GalleryCard from '@/components/gallery/GalleryCard';
-import GalleryModal from '@/components/gallery/GalleryModal';
+import GalleryCard from '@/Components/gallery/GalleryCard';
+import GalleryModal from '@/Components/gallery/GalleryModal';
+
 
 // Construction projects data with optimized images
 const projectsData = [
