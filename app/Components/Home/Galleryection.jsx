@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FaTimes, FaSpinner, FaArrowRight } from "react-icons/fa";
-import Loader from '@/components/Loader';
+import Loader from '../Loader';
+
 
 // Sample project data matching your ProjectCard structure
 const projectData = [

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { videoOptimizer } from '@/../utils/videoOptimization.js';
-import Loader from '@/components/Loader';
+import Loader from '../Loader';
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);

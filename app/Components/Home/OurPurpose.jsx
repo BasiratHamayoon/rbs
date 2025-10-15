@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { FaAngleRight, FaPlay, FaSpinner, FaTimes } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import videoThumbnail from '../../../public/Home/thumbnail.jpg';
-import Loader from '@/components/Loader';
+import Loader from '../Loader';
 
 function OurPurpose() {
   const [ref, inView] = useInView({
