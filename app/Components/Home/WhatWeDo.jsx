@@ -6,7 +6,7 @@ import { FaHouse, FaAngleRight, FaPaintRoller, FaCampground } from "react-icons/
 import { GiDefensiveWall, GiBrickWall, GiWoodenFence, GiKitchenScale } from "react-icons/gi";
 import { MdBathroom } from "react-icons/md";
 import { useRouter } from 'next/navigation';
-import Loader from '@/components/Loader';
+import Loader from '../Loader';
 
 const servicesData = [
     { 

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram, FaBars, FaTimes, FaHome, FaInfoCircle, FaStar, FaBuilding } from 'react-icons/fa';
-import Loader from '@/components/Loader';
+import Loader from './Loader';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);

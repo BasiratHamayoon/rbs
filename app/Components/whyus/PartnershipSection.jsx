@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState } from 'react';
-import Loader from '@/components/Loader';
+import Loader from '../Loader';
 
 const PartnershipSection = () => {
   const [isLoading, setIsLoading] = useState(false);
