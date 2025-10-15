@@ -50,6 +50,16 @@ function SubscriptionSection() {
     },
   ];
 
+  const scrollToQuoteSection = () => {
+    const quoteSection = document.getElementById('request-quote-section');
+    if (quoteSection) {
+      quoteSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   // Enhanced Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -113,25 +123,52 @@ function SubscriptionSection() {
     }
   };
 
+  // Enhanced Social Icon Animations
   const socialIconVariants = {
-    hidden: { scale: 0, rotate: -180 },
+    hidden: { 
+      scale: 0, 
+      rotate: -180,
+      opacity: 0 
+    },
     visible: (i) => ({
       scale: 1,
       rotate: 0,
+      opacity: 1,
       transition: {
         delay: i * 0.3,
         duration: 0.8,
         type: "spring",
-        stiffness: 200
+        stiffness: 200,
+        damping: 15
       }
     }),
     hover: {
       scale: 1.3,
-      rotate: 360,
+      rotate: [0, -10, 10, -5, 5, 0],
+      y: -8,
       backgroundColor: "#001C73",
       color: "#ffffff",
+      boxShadow: "0 15px 30px rgba(0, 28, 115, 0.4)",
       transition: {
-        duration: 0.5,
+        duration: 0.6,
+        ease: "easeInOut"
+      }
+    },
+    tap: {
+      scale: 0.9,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
+
+  const socialIconFloatVariants = {
+    float: {
+      y: [0, -15, 0],
+      rotate: [0, 3, -3, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
         ease: "easeInOut"
       }
     }
@@ -308,7 +345,7 @@ function SubscriptionSection() {
               className="text-5xl lg:text-6xl font-bold text-[#001C73] mb-6 relative"
               variants={textRevealVariants}
             >
-              Our Services
+                Get Your Quote
               <motion.div 
                 className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#001C73] to-transparent"
                 initial={{ scaleX: 0 }}
@@ -337,7 +374,7 @@ function SubscriptionSection() {
           </motion.p>
         </motion.div>
 
-        {/* Enhanced Social Icons */}
+        {/* Enhanced Social Icons with New Animations */}
         <motion.div 
           className="flex justify-center items-center gap-8 lg:gap-12 mb-20"
           variants={containerVariants}
@@ -355,8 +392,9 @@ function SubscriptionSection() {
               initial="hidden"
               whileInView="visible"
               whileHover="hover"
+              whileTap="tap"
+              animate="float"
               viewport={{ once: true }}
-              animate={floatingAnimation}
             >
               <div className="relative z-10">
                 {social.icon}
@@ -372,6 +410,18 @@ function SubscriptionSection() {
                 {social.label}
                 <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#001C73] rotate-45" />
               </motion.div>
+
+              {/* Ripple Effect */}
+              <motion.div
+                className="absolute inset-0 rounded-3xl border-2 border-[#001C73] opacity-0"
+                whileHover={{
+                  opacity: 1,
+                  scale: 1.1,
+                  transition: {
+                    duration: 0.4
+                  }
+                }}
+              />
             </motion.a>
           ))}
         </motion.div>
@@ -475,9 +525,10 @@ function SubscriptionSection() {
                 </p>
               </motion.div>
 
-              {/* Enhanced Button */}
+              {/* Enhanced Button with Scroll Functionality */}
               <motion.button
-                className="border-2 border-[#001C73] px-4 py-2 rounded-xl cursor-pointer text-lg  relative overflow-hidden group/btn text-[#001C73] hover:text-white transition-colors duration-300"
+                onClick={scrollToQuoteSection}
+                className="border-2 border-[#001C73] px-4 py-2 rounded-xl cursor-pointer text-lg relative overflow-hidden group/btn text-[#001C73] hover:text-white transition-colors duration-300"
                 variants={buttonHoverVariants}
                 whileHover="hover"
                 whileTap={{ scale: 0.95 }}

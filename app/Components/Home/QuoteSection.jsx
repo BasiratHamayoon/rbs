@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaCheck, FaPaperPlane } from 'react-icons/fa';
 import backgrounImage from '../../../public/Home/bg.jpg';
 
-function QuoteSection() {
+function RequestQuote() {
   const [formData, setFormData] = useState({
     name: '',
     telephone: '',
@@ -211,7 +211,7 @@ function QuoteSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-20">
+    <section id="request-quote-section" className="relative min-h-screen flex items-center justify-center overflow-hidden py-20">
       {/* Background Image with Gradient Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -314,7 +314,7 @@ function QuoteSection() {
                   transition: { duration: 0.3 }
                 }}
               >
-                Start Your Project
+                Request A Quote
                 <motion.div 
                   className="absolute -bottom-3 left-0 w-full h-1 bg-gradient-to-r from-[#001C73] via-[#001C73]/50 to-transparent"
                   initial={{ scaleX: 0 }}
@@ -433,7 +433,7 @@ function QuoteSection() {
                   whileHover={{ x: 5 }}
                 >
                   <FaMapMarkerAlt className="text-[#001C73] text-lg" />
-                  <p>123 Construction Avenue, City, State 12345</p>
+                  <p>Unit 10 Beckford Street, Manchester, England, M40 5AE</p>
                 </motion.div>
               </motion.div>
             </motion.div>
@@ -596,4 +596,4 @@ function QuoteSection() {
   );
 }
 
-export default QuoteSection;
+export default RequestQuote;

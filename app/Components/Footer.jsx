@@ -257,11 +257,14 @@ function Footer() {
               className="space-y-2"
               variants={textRevealVariants}
             >
-              <p className="text-gray-300">123 Construction Avenue</p>
-              <p className="text-gray-300">London, UK</p>
-              <p className="text-gray-300">SW1A 1AA</p>
+              <p className="text-gray-300">Unit 10 Beckford Street</p>
+              <p className="text-gray-300">Manchester, England</p>
+              <p className="text-gray-300">M40 5AE</p>
               <p className="text-gray-300 text-sm mt-3">
-                Serving clients across the United Kingdom with premium construction services.
+                Private Limited Company • Status: Active
+              </p>
+              <p className="text-gray-300 text-sm">
+                Serving clients across Manchester and surrounding areas with premium construction services.
               </p>
             </motion.div>
           </motion.div>
@@ -299,7 +302,7 @@ function Footer() {
               <p className="text-gray-300">Saturday: 9:00 AM - 2:00 PM</p>
               <p className="text-gray-300">Sunday: Closed</p>
               <p className="text-gray-300 text-sm mt-3">
-                24/7 emergency services available for urgent needs.
+                24/7 emergency services available for urgent construction needs.
               </p>
             </motion.div>
           </motion.div>
@@ -333,10 +336,10 @@ function Footer() {
               className="space-y-2"
               variants={textRevealVariants}
             >
-              <p className="text-gray-300">+44 (0) 20 1234 5678</p>
-              <p className="text-gray-300">+44 (0) 20 1234 5679</p>
+              <p className="text-gray-300">+44 (0) 161 123 4567</p>
+              <p className="text-gray-300">+44 (0) 161 123 4568</p>
               <p className="text-gray-300 text-sm mt-3">
-                Ready to start your project? Call us for a free consultation.
+                Ready to start your project? Call us for a free consultation and quote.
               </p>
             </motion.div>
           </motion.div>
@@ -372,8 +375,9 @@ function Footer() {
             >
               <p className="text-gray-300">info@rbsconstruction.co.uk</p>
               <p className="text-gray-300">projects@rbsconstruction.co.uk</p>
+              <p className="text-gray-300">quotes@rbsconstruction.co.uk</p>
               <p className="text-gray-300 text-sm mt-3">
-                Send us your project details and we'll get back to you within 24 hours.
+                Send us your project details and we'll get back to you within 24 hours with a detailed quote.
               </p>
             </motion.div>
           </motion.div>
@@ -392,7 +396,7 @@ function Footer() {
               className="text-gray-400 text-center lg:text-left"
               variants={textRevealVariants}
             >
-              © 2024 RBS Construction. All rights reserved. Building excellence since 2010.
+              © 2024 RBS Construction Ltd. All rights reserved. Private Limited Company • Company Status: Active
             </motion.p>
             <motion.div 
               className="flex gap-6 text-gray-400"

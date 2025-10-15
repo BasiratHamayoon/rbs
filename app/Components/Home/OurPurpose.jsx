@@ -4,7 +4,9 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FaAngleRight, FaPlay, FaSpinner, FaTimes } from "react-icons/fa";
+import { useRouter } from 'next/navigation';
 import videoThumbnail from '../../../public/Home/thumbnail.jpg';
+import Loader from '@/components/Loader';
 
 function OurPurpose() {
   const [ref, inView] = useInView({
@@ -14,8 +16,10 @@ function OurPurpose() {
 
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(false);
   const [videoSource, setVideoSource] = useState("/Home/video.mp4");
   const videoRef = useRef(null);
+  const router = useRouter();
 
   const handleVideoOpen = () => {
     setIsVideoOpen(true);
@@ -40,6 +44,13 @@ function OurPurpose() {
 
   const handleVideoError = () => {
     setIsVideoLoading(false);
+  };
+
+  const handleReadMore = () => {
+    setIsPageLoading(true);
+    setTimeout(() => {
+      router.push('/Pages/whyUs');
+    }, 1000); // 1 second delay to show loader
   };
 
   // Animation variants
@@ -182,18 +193,20 @@ function OurPurpose() {
 
   return (
     <>
+      {isPageLoading && <Loader />}
+      
       <section 
         ref={ref}
-        className='text-black grid lg:grid-cols-2 grid-cols-1 lg:px-40 px-8 py-20 gap-12 lg:gap-20 justify-center items-start bg-gray-50 min-h-[80vh]' // Changed to items-start and added min-height
+        className='text-black grid lg:grid-cols-2 grid-cols-1 lg:px-40 px-8 py-20 gap-12 lg:gap-20 justify-center items-start bg-gray-50 min-h-[80vh]'
       >
         {/* Left Content - Video Thumbnail */}
         <motion.div 
-          className='flex flex-col items-center lg:items-start h-full justify-between' // Added h-full and justify-between
+          className='flex flex-col items-center lg:items-start h-full justify-between'
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
         >
-          <div className='w-full'> {/* Wrapper for top alignment */}
+          <div className='w-full'>
             <motion.div
               className='relative cursor-pointer'
               variants={thumbnailVariants}
@@ -255,12 +268,12 @@ function OurPurpose() {
 
         {/* Right Content - Text */}
         <motion.div 
-          className='flex flex-col h-full justify-between space-y-8' // Added flex-col and justify-between
+          className='flex flex-col h-full justify-between space-y-8'
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
         >
-          <div className='space-y-8'> {/* Wrapper for top content */}
+          <div className='space-y-8'>
             <motion.div 
               className='space-y-6'
               variants={rightContentVariants}
@@ -282,6 +295,7 @@ function OurPurpose() {
 
             {/* Read More Text Link */}
             <motion.div
+              onClick={handleReadMore}
               variants={textLinkVariants}
               initial="hidden"
               animate={inView ? "visible" : "hidden"}

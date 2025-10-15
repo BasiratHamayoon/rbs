@@ -4,20 +4,47 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { FaTimes, FaSpinner, FaExpand, FaArrowRight } from "react-icons/fa";
+import { FaTimes, FaSpinner, FaArrowRight } from "react-icons/fa";
+import Loader from '@/components/Loader';
 
-// Import your images
-import image1 from '../../../public/Home/1.jpg'
-import image2 from '../../../public/Home/2.jpg'
-import image3 from '../../../public/Home/3.jpg'
-import image4 from '../../../public/Home/4.jpg'
-
-// Sample gallery images - you can use the same images from your gallery page
-const galleryImages = [
-  { id: 1, src: image1, alt: "Modern Residential Complex" },
-  { id: 2, src: image2, alt: "Commercial Office Tower" },
-  { id: 3, src: image3, alt: "Hospitality Resort Project" },
-  { id: 4, src: image4, alt: "Educational Campus" },
+// Sample project data matching your ProjectCard structure
+const projectData = [
+  {
+    id: 1,
+    title: "Modern Residential Complex",
+    description: "A luxurious residential complex featuring contemporary architecture and sustainable design principles",
+    category: "Residential",
+    image: "/Projects/house1.jpg",
+    duration: "18 months",
+    size: "25,000 sq ft"
+  },
+  {
+    id: 2,
+    title: "Commercial Office Tower",
+    description: "45-story commercial tower with state-of-the-art facilities and eco-friendly infrastructure",
+    category: "Commercial",
+    image: "/Projects/buil1.jpg",
+    duration: "24 months",
+    size: "180,000 sq ft"
+  },
+  {
+    id: 3,
+    title: "Luxury Hotel Resort",
+    description: "Premium beachfront resort with world-class amenities and sustainable tourism features",
+    category: "Hotels",
+    image: "/Projects/resturent1.jpg",
+    duration: "30 months",
+    size: "50,000 sq ft"
+  },
+  {
+    id: 4,
+    title: "Healthcare Facility",
+    description: "Advanced medical center with specialized treatment areas and patient-friendly design",
+    category: "Hospitals",
+    image: "/Projects/hos1.jpg",
+    duration: "28 months",
+    size: "120,000 sq ft"
+  }
 ];
 
 function GallerySection() {
@@ -26,21 +53,43 @@ function GallerySection() {
     threshold: 0.1,
   });
 
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(false);
 
-  const handleImageClick = (image) => {
-    setSelectedImage(image);
+  const handleProjectClick = (project) => {
+    setSelectedProject(project);
     setIsImageLoading(true);
   };
 
   const handleCloseModal = () => {
-    setSelectedImage(null);
+    setSelectedProject(null);
     setIsImageLoading(false);
   };
 
   const handleImageLoad = () => {
     setIsImageLoading(false);
+  };
+
+  const handleViewMoreProjects = () => {
+    // Close the modal first
+    setSelectedProject(null);
+    setIsImageLoading(false);
+    
+    // Then show loading and redirect
+    setIsPageLoading(true);
+    setTimeout(() => {
+      window.location.href = '/Pages/projects';
+    }, 1000);
+  };
+
+  const handleViewMoreFromModal = () => {
+    // Close the modal and redirect to projects page
+    handleCloseModal();
+    setIsPageLoading(true);
+    setTimeout(() => {
+      window.location.href = '/Pages/projects';
+    }, 1000);
   };
 
   // Animation variants
@@ -134,6 +183,8 @@ function GallerySection() {
 
   return (
     <>
+      {isPageLoading && <Loader />}
+      
       <section 
         id="gallery"
         ref={ref}
@@ -148,7 +199,7 @@ function GallerySection() {
               initial="hidden"
               animate={inView ? "visible" : "hidden"}
             >
-              Project <span className="text-[#001C73]">Gallery</span>
+              Featured <span className="text-[#001C73]">Projects</span>
             </motion.h2>
             <motion.p 
               className='text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8'
@@ -157,60 +208,103 @@ function GallerySection() {
               animate={inView ? "visible" : "hidden"}
               transition={{ delay: 0.2 }}
             >
-              A glimpse into our exceptional construction projects. Explore our complete portfolio showcasing innovative designs and quality craftsmanship.
+              Explore our handpicked selection of exceptional construction projects showcasing innovative designs and quality craftsmanship.
             </motion.p>
           </div>
 
-          {/* Gallery Grid */}
+          {/* Projects Grid */}
           <motion.div 
             className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12'
             variants={containerVariants}
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
           >
-            {galleryImages.map((image, index) => (
+            {projectData.map((project, index) => (
               <motion.div
-                key={image.id}
-                className='relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg'
+                key={project.id}
+                className='group relative bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer w-full'
                 variants={itemVariants}
                 whileHover={{ 
-                  scale: 1.05,
-                  y: -10,
-                  transition: { duration: 0.3 }
+                  y: -12,
+                  scale: 1.03,
+                  boxShadow: "0 25px 50px -12px rgba(0, 28, 115, 0.25)",
+                  transition: {
+                    duration: 0.4,
+                    ease: "easeOut"
+                  }
                 }}
-                onClick={() => handleImageClick(image)}
+                onClick={() => handleProjectClick(project)}
               >
-                {/* Gallery Image */}
-                <div className='aspect-square relative overflow-hidden rounded-2xl'>
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className='object-cover transition-transform duration-500 group-hover:scale-110'
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                {/* Image Container */}
+                <div className="relative overflow-hidden h-48 sm:h-56 md:h-64">
+                  {/* Project Image */}
+                  <motion.img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
                   />
                   
-                  {/* Overlay */}
-                  <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center'>
-                    <motion.div
-                      className='bg-white/90 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300'
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <FaExpand className="text-[#001C73] text-lg" />
-                    </motion.div>
+                  {/* Category Badge */}
+                  <motion.div 
+                    className="absolute top-3 left-3 bg-gradient-to-r from-[#001C73] to-[#0038FF] text-white px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border border-white/20 shadow-lg z-20"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {project.category}
+                  </motion.div>
+
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-500 ease-out flex items-end p-4 sm:p-6 z-10">
+                    <div className="transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 w-full transition-all duration-500 ease-out">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-white font-bold text-lg sm:text-xl line-clamp-1">
+                          {project.title}
+                        </h3>
+                        <div className="bg-white/90 rounded-full p-2 shadow-lg backdrop-blur-sm">
+                          <FaArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#001C73]" />
+                        </div>
+                      </div>
+                      <p className="text-gray-200 text-sm line-clamp-2 mb-3">
+                        {project.description}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-300">
+                        <span>{project.duration}</span>
+                        <span>{project.size}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Project Type Badge */}
-                <div className='absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full'>
-                  <span className='text-sm font-semibold text-[#001C73]'>
-                    {image.alt.split(' ')[0]}
-                  </span>
+                {/* Content */}
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
+                      {project.title}
+                    </h3>
+                    <span className="text-sm text-[#001C73] font-medium bg-[#001C73]/10 px-3 py-1 rounded-full">
+                      {project.category}
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {project.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>{project.duration}</span>
+                    <span>{project.size}</span>
+                  </div>
                 </div>
 
-                {/* Hover Glow Effect */}
+                {/* Hover Border Effect */}
                 <motion.div
-                  className="absolute inset-0 bg-[#001C73] rounded-2xl blur-md opacity-0 group-hover:opacity-20 -z-10 transition-opacity duration-300"
+                  className="absolute inset-0 border-2 border-transparent rounded-xl sm:rounded-2xl pointer-events-none"
+                  whileHover={{
+                    borderColor: "rgba(0, 28, 115, 0.3)",
+                    transition: { duration: 0.3 }
+                  }}
                 />
               </motion.div>
             ))}
@@ -230,7 +324,7 @@ function GallerySection() {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 1 }}
               >
-                Explore Our Complete Portfolio
+                Discover More Amazing Projects
               </motion.h3>
               <motion.p 
                 className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto"
@@ -238,7 +332,7 @@ function GallerySection() {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 1.1 }}
               >
-                Discover our full range of construction projects including residential complexes, commercial towers, healthcare facilities, and infrastructure developments.
+                Explore our complete portfolio featuring residential complexes, commercial towers, healthcare facilities, and innovative infrastructure projects.
               </motion.p>
               
               <motion.div
@@ -248,27 +342,27 @@ function GallerySection() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Link 
-                  href="/Pages/gallery" 
-                  className="inline-flex items-center gap-3 bg-white text-[#001C73] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl"
+                <button 
+                  onClick={handleViewMoreProjects}
+                  className="inline-flex items-center gap-3 bg-white text-[#001C73] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
                 >
-                  View Full Gallery
+                  View More Projects
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
                     <FaArrowRight />
                   </motion.div>
-                </Link>
+                </button>
               </motion.div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Image Modal */}
+      {/* Project Detail Modal */}
       <AnimatePresence>
-        {selectedImage && (
+        {selectedProject && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
             variants={overlayVariants}
@@ -278,7 +372,7 @@ function GallerySection() {
             onClick={handleCloseModal}
           >
             <motion.div
-              className="relative bg-black rounded-2xl overflow-hidden max-w-4xl w-full max-h-[90vh]"
+              className="relative bg-white rounded-2xl overflow-hidden max-w-4xl w-full max-h-[90vh]"
               variants={modalVariants}
               initial="hidden"
               animate="visible"
@@ -288,96 +382,92 @@ function GallerySection() {
               {/* Close Button */}
               <motion.button
                 onClick={handleCloseModal}
-                className="absolute top-4 right-4 z-10 bg-white/20 hover:bg-white/30 text-white w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300"
+                className="absolute top-4 right-4 z-10 bg-gray-800 hover:bg-gray-900 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300"
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
               >
                 <FaTimes className="text-xl" />
               </motion.button>
 
-              {/* Explore More Button */}
-              <motion.div
-                className="absolute top-4 left-4 z-10"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Link 
-                  href="/Pages/gallery"
-                  className="bg-[#001C73] hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2"
-                  onClick={handleCloseModal}
-                >
-                  Explore More
-                  <FaArrowRight className="text-xs" />
-                </Link>
-              </motion.div>
+              {/* Project Content */}
+              <div className="flex flex-col lg:flex-row h-full">
+                {/* Image Section */}
+                <div className="lg:w-1/2 relative">
+                  <div className="relative w-full h-64 lg:h-full">
+                    {isImageLoading && (
+                      <motion.div 
+                        className="absolute inset-0 flex items-center justify-center bg-gray-100"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        >
+                          <FaSpinner className="text-[#001C73] text-4xl" />
+                        </motion.div>
+                      </motion.div>
+                    )}
+                    
+                    <Image
+                      src={selectedProject.image}
+                      alt={selectedProject.title}
+                      fill
+                      className="object-cover"
+                      onLoad={handleImageLoad}
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  </div>
+                </div>
 
-              {/* Image Container */}
-              <div className="relative w-full h-full max-h-[80vh] flex items-center justify-center">
-                {isImageLoading && (
-                  <motion.div 
-                    className="absolute inset-0 flex items-center justify-center bg-black"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                {/* Content Section */}
+                <div className="lg:w-1/2 p-6 lg:p-8 flex flex-col justify-between">
+                  <div>
+                    {/* Category Badge */}
+                    <span className="inline-block bg-[#001C73] text-white px-3 py-1 rounded-full text-sm font-medium mb-4">
+                      {selectedProject.category}
+                    </span>
+
+                    {/* Project Title */}
+                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+                      {selectedProject.title}
+                    </h3>
+
+                    {/* Project Description */}
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      {selectedProject.description}
+                    </p>
+
+                    {/* Project Details */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-500 mb-1">Duration</div>
+                        <div className="font-semibold text-gray-900">{selectedProject.duration}</div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="text-sm text-gray-500 mb-1">Size</div>
+                        <div className="font-semibold text-gray-900">{selectedProject.size}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={handleViewMoreFromModal}
+                      className="flex-1 bg-[#001C73] text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-300 text-center"
                     >
-                      <FaSpinner className="text-white text-4xl" />
-                    </motion.div>
-                    <motion.p 
-                      className="absolute bottom-10 text-white text-lg font-semibold"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 }}
+                      View More Projects
+                    </button>
+                    <button 
+                      onClick={handleCloseModal}
+                      className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
                     >
-                      Loading image...
-                    </motion.p>
-                  </motion.div>
-                )}
-                
-                <Image
-                  src={selectedImage.src}
-                  alt={selectedImage.alt}
-                  className="w-full h-auto max-h-[80vh] object-contain"
-                  onLoad={handleImageLoad}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
-                />
+                      Close
+                    </button>
+                  </div>
+                </div>
               </div>
-
-              {/* Image Info */}
-              <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-4">
-                <h3 className="text-white font-semibold text-lg mb-1">{selectedImage.alt}</h3>
-                <p className="text-gray-300 text-sm">Click navigation arrows to browse more projects</p>
-              </div>
-
-              {/* Navigation Arrows */}
-              <motion.button
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                  const currentIndex = galleryImages.findIndex(img => img.id === selectedImage.id);
-                  const prevIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
-                  handleImageClick(galleryImages[prevIndex]);
-                }}
-              >
-                ‹
-              </motion.button>
-
-              <motion.button
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                  const currentIndex = galleryImages.findIndex(img => img.id === selectedImage.id);
-                  const nextIndex = (currentIndex + 1) % galleryImages.length;
-                  handleImageClick(galleryImages[nextIndex]);
-                }}
-              >
-                ›
-              </motion.button>
             </motion.div>
           </motion.div>
         )}

@@ -19,7 +19,7 @@
 /* Dark mode media query */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #121212;  /* Dark background */
+    --background: #ffffff;  /* Dark background */
     --foreground: #f0f0f0;  /* Light foreground text for dark mode */
   }
 }

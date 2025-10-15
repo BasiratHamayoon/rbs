@@ -1,10 +1,12 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { FaHouse, FaAngleRight, FaPaintRoller, FaCampground } from "react-icons/fa6";
 import { GiDefensiveWall, GiBrickWall, GiWoodenFence, GiKitchenScale } from "react-icons/gi";
 import { MdBathroom } from "react-icons/md";
+import { useRouter } from 'next/navigation';
+import Loader from '@/components/Loader';
 
 const servicesData = [
     { 
@@ -63,6 +65,16 @@ function WhatWeDo() {
     threshold: 0.1,
   })
 
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleMoreDetails = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      router.push('/Pages/about');
+    }, 1000);
+  };
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -111,33 +123,47 @@ function WhatWeDo() {
     front: {
       rotateY: 0,
       transition: {
-        duration: 0.4, // Faster animation
+        duration: 0.4,
         ease: "easeInOut"
       }
     },
     back: {
       rotateY: 180,
       transition: {
-        duration: 0.4, // Faster animation
+        duration: 0.4,
         ease: "easeInOut"
       }
     }
   }
 
   return (
-     <section 
+    <>
+      {isLoading && <Loader />}
+      
+      <section 
         ref={ref}
-        className='py-20 bg-[#001C73]' 
-     >
-        <div className='max-w-7xl mx-auto px-8 lg:px-20'>
+        className='py-20 relative overflow-hidden' 
+      >
+        {/* Background Image with Overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/Projects/bg.jpg')",
+          }}
+        >
+          <div className="absolute inset-0 bg-white/90"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/10 to-white/30"></div>
+        </div>
+
+        <div className='relative z-10 max-w-7xl mx-auto px-8 lg:px-20'>
             {/* Section Title */}
             <motion.h1 
-                className='text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center mb-16'
+                className='text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 text-center mb-16'
                 variants={titleVariants}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
             >
-                WHAT WE DO
+                Our <span className="text-[#001C73]">Services</span>
             </motion.h1>
 
             {/* Services Grid */}
@@ -150,7 +176,7 @@ function WhatWeDo() {
                 {servicesData.map((service, index) => (
                     <motion.div
                         key={index}
-                        className='relative h-80 cursor-pointer'
+                        className='relative h-80 cursor-pointer group'
                         variants={itemVariants}
                     >
                         {/* 3D Flip Card Container */}
@@ -164,15 +190,15 @@ function WhatWeDo() {
                                 whileHover="back"
                                 variants={cardVariants}
                             >
-                                {/* Front of Card */}
+                                {/* Front of Card - New Design */}
                                 <div 
-                                    className='absolute inset-0 bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-center text-center'
+                                    className='absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-gray-200 p-6 flex flex-col items-center justify-center text-center'
                                     style={{ backfaceVisibility: 'hidden' }}
                                 >
-                                    {/* Icon */}
+                                    {/* Icon Container */}
                                     <motion.div 
-                                        className='text-[#001C73] mb-4'
-                                        whileHover={{ scale: 1.2 }}
+                                        className='w-20 h-20 bg-gradient-to-br from-[#001C73] to-[#0038FF] rounded-2xl flex items-center justify-center text-white mb-4 shadow-lg'
+                                        whileHover={{ scale: 1.1, rotate: 5 }}
                                         transition={{ duration: 0.3 }}
                                     >
                                         {service.icon}
@@ -195,29 +221,40 @@ function WhatWeDo() {
                                         whileHover={{ opacity: 1 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <span>Hover for details</span>
+                                        <span>Learn more</span>
                                         <FaAngleRight className="text-xs" />
                                     </motion.div>
                                 </div>
 
-                                {/* Back of Card */}
+                                {/* Back of Card - New Design */}
                                 <div 
-                                    className='absolute inset-0 bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-center text-center'
+                                    className='absolute inset-0 bg-gradient-to-br from-[#001C73] to-[#0038FF] rounded-2xl shadow-2xl p-6 flex flex-col items-center justify-center text-center'
                                     style={{ 
                                         backfaceVisibility: 'hidden',
                                         transform: 'rotateY(180deg)'
                                     }}
                                 >                                   
-                                    <p className='text-gray-600 text-sm leading-relaxed mb-6'>
+                                    {/* Back Icon */}
+                                    <motion.div 
+                                        className='w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-white mb-4 backdrop-blur-sm'
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
+                                        {service.icon}
+                                    </motion.div>
+
+                                    <p className='text-white text-sm leading-relaxed mb-6 font-medium'>
                                         {service.specialization}
                                     </p>
 
                                     {/* More Details Button */}
                                     <motion.button
-                                        className='bg-[#001C73] text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2 group'
+                                        onClick={handleMoreDetails}
+                                        className='bg-white text-[#001C73] px-6 py-3 rounded-full font-semibold flex items-center gap-2 group'
                                         whileHover={{ 
                                             scale: 1.05,
-                                            boxShadow: "0 10px 25px -5px rgba(0, 28, 115, 0.4)"
+                                            boxShadow: "0 10px 25px -5px rgba(255, 255, 255, 0.4)"
                                         }}
                                         whileTap={{ scale: 0.95 }}
                                         transition={{ duration: 0.2 }}
@@ -234,7 +271,7 @@ function WhatWeDo() {
 
                                     {/* Service Title on Back */}
                                     <motion.p 
-                                        className='absolute bottom-4 text-gray-400 text-sm font-medium'
+                                        className='absolute bottom-4 text-white/70 text-sm font-medium'
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.2 }}
@@ -247,15 +284,14 @@ function WhatWeDo() {
 
                         {/* Card Glow Effect */}
                         <motion.div
-                            className="absolute inset-0 bg-[#001C73] rounded-2xl blur-md opacity-0 -z-10"
-                            whileHover={{ opacity: 0.3 }}
-                            transition={{ duration: 0.3 }}
+                            className="absolute inset-0 bg-[#001C73] rounded-2xl blur-md opacity-0 -z-10 group-hover:opacity-20 transition-all duration-300"
                         />
                     </motion.div>
                 ))}
             </motion.div>
         </div>
-     </section>
+      </section>
+    </>
   )
 }
 

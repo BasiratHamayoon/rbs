@@ -8,7 +8,7 @@ const ContactInfo = () => {
       icon: FaPhone,
       title: "Phone Support",
       description: "Speak directly with our team",
-      details: "+1 (555) 123-4567",
+      details: "+44 (0) 161 123 4567",
       timing: "Mon-Fri: 8:00 AM - 6:00 PM",
       color: "from-blue-500 to-blue-600"
     },
@@ -16,7 +16,7 @@ const ContactInfo = () => {
       icon: FaEnvelope,
       title: "Email Us",
       description: "Send us your queries",
-      details: "info@construction.com",
+      details: "info@rbsconstruction.co.uk",
       timing: "Response within 24 hours",
       color: "from-green-500 to-green-600"
     },
@@ -24,7 +24,7 @@ const ContactInfo = () => {
       icon: FaMapMarkerAlt,
       title: "Visit Our Office",
       description: "Come meet us in person",
-      details: "123 Construction Ave, City, State 12345",
+      details: "Unit 10 Beckford Street, Manchester, England M40 5AE",
       timing: "Mon-Fri: 9:00 AM - 5:00 PM",
       color: "from-purple-500 to-purple-600"
     },
@@ -147,7 +147,7 @@ const ContactInfo = () => {
         <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
           <div className="bg-[#001C73]/5 rounded-lg p-3 sm:p-4">
             <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#001C73]">24/7</div>
-            <div className="text-xs sm:text-sm text-gray-600">Support Available</div>
+            <div className="text-xs sm:text-sm text-gray-600">Emergency Support</div>
           </div>
           <div className="bg-[#001C73]/5 rounded-lg p-3 sm:p-4">
             <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#001C73]">30min</div>
