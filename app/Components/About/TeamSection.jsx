@@ -1,10 +1,9 @@
 "use client";
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useRef, useState, useEffect } from 'react';
-import { FaLinkedin, FaTwitter, FaAward, FaRocket, FaUsers, FaLightbulb } from 'react-icons/fa';
+import { useRef, useState } from 'react';
+import { FaLinkedin, FaAward, FaRocket, FaUsers, FaLightbulb } from 'react-icons/fa';
 
-// Mock team images - replace with your actual images
 import teamMember1 from '../../../public/About/01.jpg';
 import teamMember2 from '../../../public/About/02.jpg';
 import teamMember3 from '../../../public/About/03.jpg';
@@ -15,6 +14,9 @@ const TeamSection = () => {
   const [activeCard, setActiveCard] = useState(0);
   const [hoveredCard, setHoveredCard] = useState(null);
   const scrollRef = useRef(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftRef = useRef(0);
 
   const teamMembers = [
     {
@@ -26,8 +28,7 @@ const TeamSection = () => {
       badges: ["Leadership", "Strategy", "Innovation"],
       icon: FaRocket,
       social: {
-        linkedin: "#",
-        twitter: "#"
+        linkedin: "#"
       }
     },
     {
@@ -39,8 +40,7 @@ const TeamSection = () => {
       badges: ["Project Management", "Sustainability", "Operations"],
       icon: FaAward,
       social: {
-        linkedin: "#",
-        twitter: "#"
+        linkedin: "#"
       }
     },
     {
@@ -52,8 +52,7 @@ const TeamSection = () => {
       badges: ["Architecture", "Design", "Sustainability"],
       icon: FaLightbulb,
       social: {
-        linkedin: "#",
-        twitter: "#"
+        linkedin: "#"
       }
     },
     {
@@ -65,8 +64,7 @@ const TeamSection = () => {
       badges: ["Commercial", "Residential", "Quality"],
       icon: FaUsers,
       social: {
-        linkedin: "#",
-        twitter: "#"
+        linkedin: "#"
       }
     },
     {
@@ -78,8 +76,7 @@ const TeamSection = () => {
       badges: ["Creative", "Modern", "Trends"],
       icon: FaAward,
       social: {
-        linkedin: "#",
-        twitter: "#"
+        linkedin: "#"
       }
     },
     {
@@ -91,13 +88,11 @@ const TeamSection = () => {
       badges: ["Operations", "Client Relations", "Logistics"],
       icon: FaUsers,
       social: {
-        linkedin: "#",
-        twitter: "#"
+        linkedin: "#"
       }
     }
   ];
 
-  // Fast and stunning animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -131,7 +126,6 @@ const TeamSection = () => {
     hover: {
       y: -15,
       scale: 1.03,
-      boxShadow: "0 25px 50px -12px rgba(0, 28, 115, 0.25)",
       transition: {
         type: "spring",
         stiffness: 300,
@@ -204,7 +198,7 @@ const TeamSection = () => {
     }
   };
 
-  const scrollLeft = () => {
+  const handleScrollLeft = () => {
     if (scrollRef.current) {
       const newActive = activeCard > 0 ? activeCard - 1 : teamMembers.length - 1;
       setActiveCard(newActive);
@@ -212,7 +206,7 @@ const TeamSection = () => {
     }
   };
 
-  const scrollRight = () => {
+  const handleScrollRight = () => {
     if (scrollRef.current) {
       const newActive = activeCard < teamMembers.length - 1 ? activeCard + 1 : 0;
       setActiveCard(newActive);
@@ -220,18 +214,51 @@ const TeamSection = () => {
     }
   };
 
-  // Auto-scroll effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      scrollRight();
-    }, 4000);
+  const handleMouseDown = (e) => {
+    isDragging.current = true;
+    startX.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeftRef.current = scrollRef.current.scrollLeft;
+    scrollRef.current.style.cursor = 'grabbing';
+    scrollRef.current.style.userSelect = 'none';
+  };
 
-    return () => clearInterval(interval);
-  }, [activeCard]);
+  const handleMouseLeave = () => {
+    isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.removeProperty('user-select');
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.removeProperty('user-select');
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX.current) * 2;
+    scrollRef.current.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const scrollPosition = scrollRef.current.scrollLeft;
+      const cardWidth = 400;
+      const newActive = Math.round(scrollPosition / cardWidth);
+      if (newActive !== activeCard) {
+        setActiveCard(newActive);
+      }
+    }
+  };
 
   return (
     <section className="relative py-20 bg-gradient-to-br from-slate-50 to-white overflow-hidden">
-      {/* Background Elements */}
       <motion.div 
         className="absolute top-10 left-10 w-60 h-60 bg-[#001C73]/5 rounded-full blur-2xl"
         variants={backgroundVariants}
@@ -246,7 +273,6 @@ const TeamSection = () => {
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Section Header */}
         <motion.div 
           className="text-center mb-16"
           initial="hidden"
@@ -285,12 +311,10 @@ const TeamSection = () => {
           </motion.p>
         </motion.div>
 
-        {/* Horizontal Scrolling Cards Container */}
         <div className="relative">
-          {/* Navigation Buttons - Circular with Hover Effect */}
           <motion.button
-            onClick={scrollLeft}
-            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white border border-gray-300 rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group"
+            onClick={handleScrollLeft}
+            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white border border-gray-300 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 group"
             whileHover={{ 
               scale: 1.1,
               backgroundColor: '#001C73'
@@ -307,8 +331,8 @@ const TeamSection = () => {
           </motion.button>
 
           <motion.button
-            onClick={scrollRight}
-            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white border border-gray-300 rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group"
+            onClick={handleScrollRight}
+            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white border border-gray-300 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 group"
             whileHover={{ 
               scale: 1.1,
               backgroundColor: '#001C73'
@@ -324,10 +348,9 @@ const TeamSection = () => {
             </svg>
           </motion.button>
 
-          {/* Horizontal Scroll Container */}
           <motion.div
             ref={scrollRef}
-            className="flex overflow-x-auto py-8 px-4 snap-x snap-mandatory scrollbar-hide"
+            className="flex overflow-x-auto py-8 px-4 snap-x snap-mandatory scrollbar-hide gap-8 cursor-grab"
             style={{ 
               scrollBehavior: 'smooth',
               scrollbarWidth: 'none',
@@ -337,8 +360,12 @@ const TeamSection = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onScroll={handleScroll}
           >
-            {/* Hide scrollbar for Webkit browsers */}
             <style jsx>{`
               .scrollbar-hide::-webkit-scrollbar {
                 display: none;
@@ -348,18 +375,16 @@ const TeamSection = () => {
             {teamMembers.map((member, index) => (
               <motion.div
                 key={member.id}
-                className="flex-none w-80 mx-4 snap-center"
+                className="flex-none w-80 snap-center"
                 variants={cardVariants}
                 custom={index}
                 whileHover="hover"
                 onMouseEnter={() => setHoveredCard(member.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                {/* Team Card with Hover Description */}
-                <div className={`relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 ${
-                  index === activeCard ? 'ring-2 ring-[#001C73]' : ''
+                <div className={`relative bg-white rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                  index === activeCard ? 'border-gray-300' : 'border-gray-200'
                 }`}>
-                  {/* Image Container */}
                   <motion.div 
                     className="relative h-80 overflow-hidden"
                     variants={imageVariants}
@@ -372,7 +397,6 @@ const TeamSection = () => {
                       priority
                     />
                     
-                    {/* Hover Overlay with Description */}
                     <motion.div 
                       className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 flex items-end p-6"
                       initial={{ opacity: 0 }}
@@ -389,7 +413,6 @@ const TeamSection = () => {
                       </motion.p>
                     </motion.div>
                     
-                    {/* Social Links */}
                     <motion.div 
                       className="absolute top-4 right-4 flex gap-2"
                       initial={{ opacity: 0, y: -10 }}
@@ -405,7 +428,6 @@ const TeamSection = () => {
                       </motion.a>
                     </motion.div>
 
-                    {/* Position Badge */}
                     <div className="absolute bottom-4 left-4">
                       <span className="text-white text-sm font-medium bg-[#001C73] px-3 py-1 rounded-lg">
                         {member.position}
@@ -413,7 +435,6 @@ const TeamSection = () => {
                     </div>
                   </motion.div>
 
-                  {/* Content Section */}
                   <div className="p-6">
                     <motion.h3 
                       className="text-xl font-bold text-gray-900 mb-3"
@@ -422,7 +443,6 @@ const TeamSection = () => {
                       {member.name}
                     </motion.h3>
                     
-                    {/* Badges */}
                     <motion.div 
                       className="flex flex-wrap gap-2 mb-4"
                       variants={textVariants}
@@ -437,7 +457,6 @@ const TeamSection = () => {
                       ))}
                     </motion.div>
 
-                    {/* Icon */}
                     <motion.div 
                       className="flex justify-center mt-4"
                       variants={textVariants}
@@ -450,7 +469,6 @@ const TeamSection = () => {
             ))}
           </motion.div>
 
-          {/* Dots Indicator */}
           <motion.div 
             className="flex justify-center space-x-3 mt-8"
             initial={{ opacity: 0, y: 20 }}

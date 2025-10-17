@@ -19,43 +19,79 @@ export class ImageOptimizer {
         }
       });
     }, {
-      rootMargin: '50px 0px',
-      threshold: 0.1
+      rootMargin: '100px 0px', // Increased for earlier loading
+      threshold: 0.01
     });
   }
 
-  // Optimize image URL with WebP and quality parameters
+  // Get optimized image sources for carousel - ADD THIS METHOD
+  getOptimizedImageSources(imageUrls, options = {}) {
+    if (typeof window === 'undefined') return imageUrls;
+
+    const {
+      quality = 70, // Lower quality for faster loading
+      width = 1920,
+      height = 1080
+    } = options;
+
+    return imageUrls.map(url => this.optimizeImageUrl(url, { quality, width, height }));
+  }
+
+  // Optimize image URL
   optimizeImageUrl(url, options = {}) {
-    if (!url) return '/fallback-construction.jpg';
+    if (!url) return url;
     
     const {
-      width = 400,
-      height = 300,
-      quality = 80,
+      width = 1920,
+      height = 1080,
+      quality = 70,
       format = 'webp'
     } = options;
+
+    // For local images, use query parameters for optimization if supported
+    // If using Next.js, consider using next/image instead
+    if (url.startsWith('/') && !url.includes('?')) {
+      // Simple optimization for local images
+      return url;
+    }
 
     // If using a CDN that supports image optimization
     if (url.includes('cdn.') || url.includes('cloudinary') || url.includes('imgix')) {
       const separator = url.includes('?') ? '&' : '?';
-      return `${url}${separator}w=${width}&h=${height}&q=${quality}&format=${format}&fit=crop`;
+      return `${url}${separator}w=${width}&h=${height}&q=${quality}&format=${format}&fit=cover`;
     }
 
-    // For local images, return original (consider using next/image in Next.js)
     return url;
   }
 
-  // Preload images
-  async preloadImages(urls) {
-    const preloadPromises = urls.map(url => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = this.optimizeImageUrl(url);
-        img.onload = () => resolve(url);
-        img.onerror = () => reject(url);
-      });
+  // Preload single image
+  async preloadImage(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = this.optimizeImageUrl(url, { quality: 30, width: 800 }); // Lower quality for preload
+      img.onload = () => resolve(url);
+      img.onerror = () => reject(url);
+      
+      // Timeout for slow connections
+      setTimeout(() => reject(url), 5000);
     });
+  }
 
+  // Preload next images in sequence
+  async preloadNextImages(currentIndex, imageUrls) {
+    const nextIndex = (currentIndex + 1) % imageUrls.length;
+    const nextImageUrl = imageUrls[nextIndex];
+    
+    try {
+      await this.preloadImage(nextImageUrl);
+    } catch (error) {
+      console.warn('Failed to preload next image:', nextImageUrl);
+    }
+  }
+
+  // Preload multiple images
+  async preloadImages(urls) {
+    const preloadPromises = urls.map(url => this.preloadImage(url));
     return Promise.allSettled(preloadPromises);
   }
 
@@ -73,7 +109,7 @@ export class ImageOptimizer {
     }
 
     // Set low-quality placeholder first
-    const lqip = this.optimizeImageUrl(src, { quality: 10, width: 50 });
+    const lqip = this.optimizeImageUrl(src, { quality: 10, width: 100 });
     imgElement.src = lqip;
     imgElement.classList.add('lazy');
 
@@ -106,7 +142,7 @@ export class ImageOptimizer {
     };
   }
 
-  // Get image dimensions for proper loading
+  // Get image dimensions
   async getImageDimensions(src) {
     return new Promise((resolve) => {
       const img = new Image();
@@ -118,8 +154,11 @@ export class ImageOptimizer {
     });
   }
 
-  // Clear cache
-  clearCache() {
+  // Cleanup
+  cleanup() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
     this.cache.clear();
   }
 

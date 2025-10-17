@@ -1,13 +1,15 @@
 "use client";
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { FaComments, FaUser, FaEnvelope, FaPhone, FaEdit, FaPaperPlane, FaCheck } from 'react-icons/fa';
+import { FaComments, FaUser, FaEnvelope, FaPhone, FaEdit, FaPaperPlane, FaCheck, FaTimes } from 'react-icons/fa';
 
 const GeneralEnquiries = () => {
   const [enquiryType, setEnquiryType] = useState('');
   const [phoneCountryCode, setPhoneCountryCode] = useState('+1');
   const [preferredContact, setPreferredContact] = useState('email');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -51,6 +53,32 @@ const GeneralEnquiries = () => {
     }
   };
 
+  const popupVariants = {
+    hidden: {
+      opacity: 0,
+      scale: 0.8,
+      y: 50
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.8,
+      y: -50,
+      transition: {
+        duration: 0.3,
+        ease: "easeIn"
+      }
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -59,15 +87,66 @@ const GeneralEnquiries = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({
-      ...formData,
-      enquiryType,
-      phoneCountryCode,
-      preferredContact,
-      acceptTerms
-    });
+    
+    if (!acceptTerms) {
+      alert('Please accept the terms and conditions');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const enquiryData = {
+        name: formData.name,
+        email: formData.email,
+        telephone: `${phoneCountryCode}${formData.phone}`,
+        message: formData.message,
+        enquiryType: enquiryType,
+        phoneCountryCode: phoneCountryCode,
+        preferredContact: preferredContact
+      };
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/enquiries`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(enquiryData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit enquiry');
+      }
+
+      const result = await response.json();
+      
+      // Show success popup
+      setShowSuccessPopup(true);
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+      });
+      setEnquiryType('');
+      setPhoneCountryCode('+1');
+      setPreferredContact('email');
+      setAcceptTerms(false);
+
+    } catch (error) {
+      console.error('Error submitting enquiry:', error);
+      alert('There was an error submitting your enquiry. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeSuccessPopup = () => {
+    setShowSuccessPopup(false);
   };
 
   const CustomRadio = ({ value, label, checked, onChange, icon: Icon }) => (
@@ -148,207 +227,279 @@ const GeneralEnquiries = () => {
   );
 
   return (
-    <motion.div 
-      className="bg-white rounded-2xl shadow-lg border border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative overflow-hidden w-full"
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-    >
-      <div className="relative z-10 w-full">
-        <motion.h3 
-          className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 flex items-center gap-3"
-          variants={itemVariants}
-        >
-          <div className="p-2 bg-[#001C73] text-white rounded-lg">
-            <FaComments className="w-5 h-5 sm:w-6 sm:h-6" />
-          </div>
-          General Enquiries
-        </motion.h3>
-        <motion.p 
-          className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8"
-          variants={itemVariants}
-        >
-          Please fill out the form below if you have any enquiries regarding our business
-        </motion.p>
+    <>
+      <motion.div 
+        className="bg-white rounded-2xl shadow-lg border border-gray-200 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative overflow-hidden w-full"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
+        <div className="relative z-10 w-full">
+          <motion.h3 
+            className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 flex items-center gap-3"
+            variants={itemVariants}
+          >
+            <div className="p-2 bg-[#001C73] text-white rounded-lg">
+              <FaComments className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+            General Enquiries
+          </motion.h3>
+          <motion.p 
+            className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8"
+            variants={itemVariants}
+          >
+            Please fill out the form below if you have any enquiries regarding our business
+          </motion.p>
 
-        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 w-full">
-          {/* Name & Email */}
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6" variants={itemVariants}>
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <FaUser className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
-                Full Name *
-              </label>
-              <motion.input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                whileFocus={{ scale: 1.02 }}
-                className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm text-sm sm:text-base"
-                placeholder="Enter your full name"
-              />
-            </div>
-            
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <FaEnvelope className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
-                Email Address *
-              </label>
-              <motion.input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                whileFocus={{ scale: 1.02 }}
-                className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm text-sm sm:text-base"
-                placeholder="your.email@example.com"
-              />
-            </div>
-          </motion.div>
-
-          {/* Enquiry Type & Phone */}
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6" variants={itemVariants}>
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Enquiry Type *
-              </label>
-              <motion.select 
-                value={enquiryType}
-                onChange={(e) => setEnquiryType(e.target.value)}
-                required
-                whileFocus={{ scale: 1.02 }}
-                className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium shadow-sm text-sm sm:text-base"
-              >
-                <option value="" className="text-gray-400">Select Enquiry Type</option>
-                {enquiryTypes.map((type, index) => (
-                  <option key={index} value={type} className="py-2">{type}</option>
-                ))}
-              </motion.select>
-            </div>
-            
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                <FaPhone className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
-                Phone Number
-              </label>
-              <div className="flex gap-2 sm:gap-3">
-                <motion.select 
-                  value={phoneCountryCode}
-                  onChange={(e) => setPhoneCountryCode(e.target.value)}
-                  whileFocus={{ scale: 1.02 }}
-                  className="w-20 sm:w-28 px-2 sm:px-3 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium shadow-sm text-xs sm:text-sm"
-                >
-                  {countryCodes.map((code, index) => (
-                    <option key={index} value={code}>{code}</option>
-                  ))}
-                </motion.select>
+          <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 w-full">
+            {/* Name & Email */}
+            <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6" variants={itemVariants}>
+              <div className="w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <FaUser className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
+                  Full Name *
+                </label>
                 <motion.input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
+                  type="text"
+                  name="name"
+                  value={formData.name}
                   onChange={handleInputChange}
+                  required
                   whileFocus={{ scale: 1.02 }}
-                  className="flex-1 px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm text-sm sm:text-base"
-                  placeholder="Phone number"
+                  className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm text-sm sm:text-base"
+                  placeholder="Enter your full name"
                 />
               </div>
-            </div>
-          </motion.div>
+              
+              <div className="w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <FaEnvelope className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
+                  Email Address *
+                </label>
+                <motion.input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  whileFocus={{ scale: 1.02 }}
+                  className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm text-sm sm:text-base"
+                  placeholder="your.email@example.com"
+                />
+              </div>
+            </motion.div>
 
-          {/* Message */}
-          <motion.div variants={itemVariants}>
-            <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <FaEdit className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
-              Your Message *
-            </label>
-            <motion.textarea
-              name="message"
-              value={formData.message}
-              onChange={handleInputChange}
-              required
-              rows={5}
-              whileFocus={{ scale: 1.01 }}
-              className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm resize-none text-sm sm:text-base"
-              placeholder="Please describe your enquiry in detail..."
-            />
-          </motion.div>
+            {/* Enquiry Type & Phone */}
+            <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6" variants={itemVariants}>
+              <div className="w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Enquiry Type *
+                </label>
+                <motion.select 
+                  value={enquiryType}
+                  onChange={(e) => setEnquiryType(e.target.value)}
+                  required
+                  whileFocus={{ scale: 1.02 }}
+                  className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium shadow-sm text-sm sm:text-base"
+                >
+                  <option value="" className="text-gray-400">Select Enquiry Type</option>
+                  {enquiryTypes.map((type, index) => (
+                    <option key={index} value={type} className="py-2">{type}</option>
+                  ))}
+                </motion.select>
+              </div>
+              
+              <div className="w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <FaPhone className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
+                  Phone Number
+                </label>
+                <div className="flex gap-2 sm:gap-3">
+                  <motion.select 
+                    value={phoneCountryCode}
+                    onChange={(e) => setPhoneCountryCode(e.target.value)}
+                    whileFocus={{ scale: 1.02 }}
+                    className="w-20 sm:w-28 px-2 sm:px-3 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium shadow-sm text-xs sm:text-sm"
+                  >
+                    {countryCodes.map((code, index) => (
+                      <option key={index} value={code}>{code}</option>
+                    ))}
+                  </motion.select>
+                  <motion.input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    whileFocus={{ scale: 1.02 }}
+                    className="flex-1 px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm text-sm sm:text-base"
+                    placeholder="Phone number"
+                  />
+                </div>
+              </div>
+            </motion.div>
 
-          {/* Preferred Contact Method */}
-          <motion.div variants={itemVariants}>
-            <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
-              <FaPhone className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
-              How would you like us to respond?
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-              <CustomRadio
-                value="email"
-                label="Email"
-                icon={FaEnvelope}
-                checked={preferredContact === 'email'}
-                onChange={(e) => setPreferredContact(e.target.value)}
+            {/* Message */}
+            <motion.div variants={itemVariants}>
+              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <FaEdit className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
+                Your Message *
+              </label>
+              <motion.textarea
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
+                required
+                rows={5}
+                whileFocus={{ scale: 1.01 }}
+                className="w-full px-3 sm:px-4 py-3 sm:py-4 border-2 border-gray-200 rounded-xl focus:border-[#001C73] focus:ring-4 focus:ring-[#001C73]/20 transition-all duration-300 bg-white text-gray-700 font-medium placeholder-gray-400 shadow-sm resize-none text-sm sm:text-base"
+                placeholder="Please describe your enquiry in detail..."
               />
-              <CustomRadio
-                value="phone"
-                label="Phone"
-                icon={FaPhone}
-                checked={preferredContact === 'phone'}
-                onChange={(e) => setPreferredContact(e.target.value)}
-              />
-              <CustomRadio
-                value="write"
-                label="Write"
-                icon={FaEdit}
-                checked={preferredContact === 'write'}
-                onChange={(e) => setPreferredContact(e.target.value)}
-              />
-              <CustomRadio
-                value="do not"
-                label="Do Not Contact"
-                icon={FaUser}
-                checked={preferredContact === 'do not'}
-                onChange={(e) => setPreferredContact(e.target.value)}
-              />
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Terms and Conditions */}
-          <motion.div variants={itemVariants}>
-            <CustomCheckbox />
-          </motion.div>
+            {/* Preferred Contact Method */}
+            <motion.div variants={itemVariants}>
+              <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-2">
+                <FaPhone className="w-3 h-3 sm:w-4 sm:h-4 text-[#001C73]" />
+                How would you like us to respond?
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                <CustomRadio
+                  value="email"
+                  label="Email"
+                  icon={FaEnvelope}
+                  checked={preferredContact === 'email'}
+                  onChange={(e) => setPreferredContact(e.target.value)}
+                />
+                <CustomRadio
+                  value="phone"
+                  label="Phone"
+                  icon={FaPhone}
+                  checked={preferredContact === 'phone'}
+                  onChange={(e) => setPreferredContact(e.target.value)}
+                />
+                <CustomRadio
+                  value="write"
+                  label="Write"
+                  icon={FaEdit}
+                  checked={preferredContact === 'write'}
+                  onChange={(e) => setPreferredContact(e.target.value)}
+                />
+                <CustomRadio
+                  value="do not"
+                  label="Do Not Contact"
+                  icon={FaUser}
+                  checked={preferredContact === 'do not'}
+                  onChange={(e) => setPreferredContact(e.target.value)}
+                />
+              </div>
+            </motion.div>
 
-          {/* Submit Button */}
-          <motion.button
-            type="submit"
-            variants={itemVariants}
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 25px 50px rgba(0, 28, 115, 0.3)"
-            }}
-            whileTap={{ scale: 0.95 }}
-            disabled={!acceptTerms}
-            className="w-full bg-[#001C73] text-white py-4 sm:py-5 px-6 sm:px-8 rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg relative overflow-hidden group"
+            {/* Terms and Conditions */}
+            <motion.div variants={itemVariants}>
+              <CustomCheckbox />
+            </motion.div>
+
+            {/* Submit Button */}
+            <motion.button
+              type="submit"
+              variants={itemVariants}
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 25px 50px rgba(0, 28, 115, 0.3)"
+              }}
+              whileTap={{ scale: 0.95 }}
+              disabled={!acceptTerms || isSubmitting}
+              className="w-full bg-[#001C73] text-white py-4 sm:py-5 px-6 sm:px-8 rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg relative overflow-hidden group"
+            >
+              {isSubmitting ? (
+                <span className="relative z-10 flex items-center justify-center text-sm sm:text-base">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full mr-2 sm:mr-3"
+                  />
+                  Sending...
+                </span>
+              ) : (
+                <span className="relative z-10 flex items-center justify-center text-sm sm:text-base">
+                  <FaPaperPlane className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
+                  Send Message
+                  <motion.div
+                    animate={{ x: acceptTerms ? [0, 5, 0] : 0 }}
+                    transition={{ duration: 1.5, repeat: acceptTerms ? Infinity : 0 }}
+                  >
+                    <FaCheck className="w-4 h-4 sm:w-5 sm:h-5 ml-2 sm:ml-3" />
+                  </motion.div>
+                </span>
+              )}
+              <motion.div 
+                className="absolute inset-0 bg-[#001C73]/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              />
+            </motion.button>
+          </form>
+        </div>
+      </motion.div>
+
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border border-[#001C73]/20"
+            variants={popupVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           >
-            <span className="relative z-10 flex items-center justify-center text-sm sm:text-base">
-              <FaPaperPlane className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
-              Send Message
+            <div className="text-center">
               <motion.div
-                animate={{ x: acceptTerms ? [0, 5, 0] : 0 }}
-                transition={{ duration: 1.5, repeat: acceptTerms ? Infinity : 0 }}
+                className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
               >
-                <FaCheck className="w-4 h-4 sm:w-5 sm:h-5 ml-2 sm:ml-3" />
+                <FaCheck className="text-3xl text-green-600" />
               </motion.div>
-            </span>
-            <motion.div 
-              className="absolute inset-0 bg-[#001C73]/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            />
-          </motion.button>
-        </form>
-      </div>
-    </motion.div>
+              
+              <motion.h3
+                className="text-2xl font-bold text-gray-900 mb-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                Enquiry Sent Successfully!
+              </motion.h3>
+              
+              <motion.p
+                className="text-gray-600 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                Thank you for your enquiry! We've received your message and will get back to you within 24 hours. Our team is looking forward to assisting you.
+              </motion.p>
+              
+              <motion.button
+                onClick={closeSuccessPopup}
+                className="w-full bg-[#001C73] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0026A3] transition-colors duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Close
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </>
   );
 };
 

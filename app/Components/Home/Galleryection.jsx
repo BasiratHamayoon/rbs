@@ -1,52 +1,11 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FaTimes, FaSpinner, FaArrowRight } from "react-icons/fa";
 import Loader from '../Loader';
-
-
-// Sample project data matching your ProjectCard structure
-const projectData = [
-  {
-    id: 1,
-    title: "Modern Residential Complex",
-    description: "A luxurious residential complex featuring contemporary architecture and sustainable design principles",
-    category: "Residential",
-    image: "/Projects/house1.jpg",
-    duration: "18 months",
-    size: "25,000 sq ft"
-  },
-  {
-    id: 2,
-    title: "Commercial Office Tower",
-    description: "45-story commercial tower with state-of-the-art facilities and eco-friendly infrastructure",
-    category: "Commercial",
-    image: "/Projects/buil1.jpg",
-    duration: "24 months",
-    size: "180,000 sq ft"
-  },
-  {
-    id: 3,
-    title: "Luxury Hotel Resort",
-    description: "Premium beachfront resort with world-class amenities and sustainable tourism features",
-    category: "Hotels",
-    image: "/Projects/resturent1.jpg",
-    duration: "30 months",
-    size: "50,000 sq ft"
-  },
-  {
-    id: 4,
-    title: "Healthcare Facility",
-    description: "Advanced medical center with specialized treatment areas and patient-friendly design",
-    category: "Hospitals",
-    image: "/Projects/hos1.jpg",
-    duration: "28 months",
-    size: "120,000 sq ft"
-  }
-];
+import { useProject } from '@/context/ProjectContext';
 
 function GallerySection() {
   const [ref, inView] = useInView({
@@ -57,6 +16,44 @@ function GallerySection() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(false);
+  const [featuredProjects, setFeaturedProjects] = useState([]);
+  
+  const { projects, loading } = useProject();
+
+  // Get first 4 featured projects from all projects
+  useEffect(() => {
+    if (projects.all && projects.all.length > 0) {
+      const featured = projects.all
+        .filter(project => project.featured)
+        .slice(0, 4);
+      
+      // If not enough featured projects, take first 4 from all projects
+      if (featured.length < 4) {
+        const additional = projects.all
+          .filter(project => !featured.some(f => f.id === project.id)) // Avoid duplicates
+          .slice(0, 4 - featured.length)
+          .map(project => ({
+            ...project,
+            image: project.images?.[0] || '/Projects/default.jpg',
+            duration: project.duration || 'Not specified',
+            size: project.size || 'Not specified'
+          }));
+        setFeaturedProjects([...featured, ...additional]);
+      } else {
+        setFeaturedProjects(featured.map(project => ({
+          ...project,
+          image: project.images?.[0] || '/Projects/default.jpg',
+          duration: project.duration || 'Not specified',
+          size: project.size || 'Not specified'
+        })));
+      }
+    }
+  }, [projects]);
+
+  // Generate unique key for each project
+  const generateProjectKey = (project, index) => {
+    return project.id ? `${project.id}-${index}` : `project-${index}-${Date.now()}`;
+  };
 
   const handleProjectClick = (project) => {
     setSelectedProject(project);
@@ -73,11 +70,8 @@ function GallerySection() {
   };
 
   const handleViewMoreProjects = () => {
-    // Close the modal first
     setSelectedProject(null);
     setIsImageLoading(false);
-    
-    // Then show loading and redirect
     setIsPageLoading(true);
     setTimeout(() => {
       window.location.href = '/Pages/projects';
@@ -85,7 +79,6 @@ function GallerySection() {
   };
 
   const handleViewMoreFromModal = () => {
-    // Close the modal and redirect to projects page
     handleCloseModal();
     setIsPageLoading(true);
     setTimeout(() => {
@@ -213,103 +206,130 @@ function GallerySection() {
             </motion.p>
           </div>
 
-          {/* Projects Grid */}
-          <motion.div 
-            className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12'
-            variants={containerVariants}
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-          >
-            {projectData.map((project, index) => (
-              <motion.div
-                key={project.id}
-                className='group relative bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer w-full'
-                variants={itemVariants}
-                whileHover={{ 
-                  y: -12,
-                  scale: 1.03,
-                  boxShadow: "0 25px 50px -12px rgba(0, 28, 115, 0.25)",
-                  transition: {
-                    duration: 0.4,
-                    ease: "easeOut"
-                  }
-                }}
-                onClick={() => handleProjectClick(project)}
-              >
-                {/* Image Container */}
-                <div className="relative overflow-hidden h-48 sm:h-56 md:h-64">
-                  {/* Project Image */}
-                  <motion.img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                  />
-                  
-                  {/* Category Badge */}
-                  <motion.div 
-                    className="absolute top-3 left-3 bg-gradient-to-r from-[#001C73] to-[#0038FF] text-white px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border border-white/20 shadow-lg z-20"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {project.category}
-                  </motion.div>
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-16">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-[#001C73] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600 text-lg font-medium">Loading Featured Projects...</p>
+              </div>
+            </div>
+          )}
 
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-500 ease-out flex items-end p-4 sm:p-6 z-10">
-                    <div className="transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 w-full transition-all duration-500 ease-out">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-white font-bold text-lg sm:text-xl line-clamp-1">
-                          {project.title}
-                        </h3>
-                        <div className="bg-white/90 rounded-full p-2 shadow-lg backdrop-blur-sm">
-                          <FaArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#001C73]" />
+          {/* Projects Grid */}
+          {!loading && (
+            <motion.div 
+              className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12'
+              variants={containerVariants}
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+            >
+              {featuredProjects.map((project, index) => (
+                <motion.div
+                  key={generateProjectKey(project, index)}
+                  className='group relative bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer w-full'
+                  variants={itemVariants}
+                  whileHover={{ 
+                    y: -12,
+                    scale: 1.03,
+                    boxShadow: "0 25px 50px -12px rgba(0, 28, 115, 0.25)",
+                    transition: {
+                      duration: 0.4,
+                      ease: "easeOut"
+                    }
+                  }}
+                  onClick={() => handleProjectClick(project)}
+                >
+                  {/* Image Container */}
+                  <div className="relative overflow-hidden h-48 sm:h-56 md:h-64">
+                    {/* Project Image */}
+                    <motion.img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                    />
+                    
+                    {/* Category Badge */}
+                    <motion.div 
+                      className="absolute top-3 left-3 bg-gradient-to-r from-[#001C73] to-[#0038FF] text-white px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border border-white/20 shadow-lg z-20"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {project.category}
+                    </motion.div>
+
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-500 ease-out flex items-end p-4 sm:p-6 z-10">
+                      <div className="transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 w-full transition-all duration-500 ease-out">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-white font-bold text-lg sm:text-xl line-clamp-1">
+                            {project.title}
+                          </h3>
+                          <div className="bg-white/90 rounded-full p-2 shadow-lg backdrop-blur-sm">
+                            <FaArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#001C73]" />
+                          </div>
                         </div>
-                      </div>
-                      <p className="text-gray-200 text-sm line-clamp-2 mb-3">
-                        {project.description}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-gray-300">
-                        <span>{project.duration}</span>
-                        <span>{project.size}</span>
+                        <p className="text-gray-200 text-sm line-clamp-2 mb-3">
+                          {project.description}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-gray-300">
+                          <span>{project.duration}</span>
+                          <span>{project.size}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Content */}
-                <div className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
-                      {project.title}
-                    </h3>
-                    <span className="text-sm text-[#001C73] font-medium bg-[#001C73]/10 px-3 py-1 rounded-full">
-                      {project.category}
-                    </span>
+                  {/* Content */}
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
+                        {project.title}
+                      </h3>
+                      <span className="text-sm text-[#001C73] font-medium bg-[#001C73]/10 px-3 py-1 rounded-full">
+                        {project.category}
+                      </span>
+                    </div>
+                    
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      {project.description}
+                    </p>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>{project.duration}</span>
+                      <span>{project.size}</span>
+                    </div>
                   </div>
-                  
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{project.duration}</span>
-                    <span>{project.size}</span>
-                  </div>
-                </div>
 
-                {/* Hover Border Effect */}
-                <motion.div
-                  className="absolute inset-0 border-2 border-transparent rounded-xl sm:rounded-2xl pointer-events-none"
-                  whileHover={{
-                    borderColor: "rgba(0, 28, 115, 0.3)",
-                    transition: { duration: 0.3 }
-                  }}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
+                  {/* Hover Border Effect */}
+                  <motion.div
+                    className="absolute inset-0 border-2 border-transparent rounded-xl sm:rounded-2xl pointer-events-none"
+                    whileHover={{
+                      borderColor: "rgba(0, 28, 115, 0.3)",
+                      transition: { duration: 0.3 }
+                    }}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+
+          {/* No Projects Message */}
+          {!loading && featuredProjects.length === 0 && (
+            <motion.div 
+              className="text-center py-16"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">No Projects Available</h3>
+                <p className="text-gray-600">We're working on adding amazing projects. Check back soon!</p>
+              </div>
+            </motion.div>
+          )}
 
           {/* Call to Action Section */}
           <motion.div 
@@ -373,7 +393,7 @@ function GallerySection() {
             onClick={handleCloseModal}
           >
             <motion.div
-              className="relative bg-white rounded-2xl overflow-hidden max-w-4xl w-full max-h-[90vh]"
+              className="relative bg-white rounded-2xl overflow-hidden max-w-4xl pb-4 w-full lg:max-h-[90vh] max-h-[100vh]"
               variants={modalVariants}
               initial="hidden"
               animate="visible"

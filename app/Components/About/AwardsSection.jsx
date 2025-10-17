@@ -4,7 +4,6 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { FaChevronLeft, FaChevronRight, FaTrophy, FaAward, FaMedal, FaStar } from 'react-icons/fa';
 
-// Mock award images - replace with your actual images
 import award1 from '../../../public/About/1.jpg';
 import award2 from '../../../public/About/2.jpg';
 import award3 from '../../../public/About/3.jpg';
@@ -16,7 +15,7 @@ const AwardsSection = () => {
   const scrollRef = useRef(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
-  const scrollLeft = useRef(0);
+  const scrollLeftRef = useRef(0);
 
   const awards = [
     {
@@ -39,7 +38,7 @@ const AwardsSection = () => {
     },
     {
       id: 3,
-      title: "Sustainable Design Pioneer",
+      title: "Sustainable Design",
       year: "2024",
       description: "Honored for leadership in sustainable construction practices and eco-friendly building solutions.",
       image: award3,
@@ -75,7 +74,6 @@ const AwardsSection = () => {
     }
   ];
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -132,7 +130,7 @@ const AwardsSection = () => {
     }
   };
 
-  const scrollLeftHandler = () => {
+  const handleScrollLeft = () => {
     if (scrollRef.current) {
       const newActive = activeCard > 0 ? activeCard - 1 : awards.length - 1;
       setActiveCard(newActive);
@@ -140,7 +138,7 @@ const AwardsSection = () => {
     }
   };
 
-  const scrollRightHandler = () => {
+  const handleScrollRight = () => {
     if (scrollRef.current) {
       const newActive = activeCard < awards.length - 1 ? activeCard + 1 : 0;
       setActiveCard(newActive);
@@ -148,19 +146,28 @@ const AwardsSection = () => {
     }
   };
 
-  // Mouse drag handlers
   const handleMouseDown = (e) => {
     isDragging.current = true;
     startX.current = e.pageX - scrollRef.current.offsetLeft;
-    scrollLeft.current = scrollRef.current.scrollLeft;
+    scrollLeftRef.current = scrollRef.current.scrollLeft;
+    scrollRef.current.style.cursor = 'grabbing';
+    scrollRef.current.style.userSelect = 'none';
   };
 
   const handleMouseLeave = () => {
     isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.removeProperty('user-select');
+    }
   };
 
   const handleMouseUp = () => {
     isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.removeProperty('user-select');
+    }
   };
 
   const handleMouseMove = (e) => {
@@ -168,14 +175,13 @@ const AwardsSection = () => {
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
     const walk = (x - startX.current) * 2;
-    scrollRef.current.scrollLeft = scrollLeft.current - walk;
+    scrollRef.current.scrollLeft = scrollLeftRef.current - walk;
   };
 
-  // Update active card on scroll
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollPosition = scrollRef.current.scrollLeft;
-      const cardWidth = 400; // 320px card + 80px gap
+      const cardWidth = 400;
       const newActive = Math.round(scrollPosition / cardWidth);
       if (newActive !== activeCard) {
         setActiveCard(newActive);
@@ -186,7 +192,6 @@ const AwardsSection = () => {
   return (
     <section className="relative py-20 bg-gradient-to-br from-gray-50 to-white overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Section Header */}
         <motion.div 
           className="text-center mb-16"
           initial="hidden"
@@ -220,12 +225,10 @@ const AwardsSection = () => {
           </motion.p>
         </motion.div>
 
-        {/* Horizontal Scrolling Cards Container */}
         <div className="relative">
-          {/* Navigation Buttons */}
           <motion.button
-            onClick={scrollLeftHandler}
-            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group border border-gray-200"
+            onClick={handleScrollLeft}
+            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-10 h-10 flex items-center justify-center transition-all duration-300 group border border-gray-200"
             whileHover={{ 
               scale: 1.05,
               backgroundColor: '#001C73'
@@ -240,8 +243,8 @@ const AwardsSection = () => {
           </motion.button>
 
           <motion.button
-            onClick={scrollRightHandler}
-            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group border border-gray-200"
+            onClick={handleScrollRight}
+            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-10 h-10 flex items-center justify-center transition-all duration-300 group border border-gray-200"
             whileHover={{ 
               scale: 1.05,
               backgroundColor: '#001C73'
@@ -255,10 +258,9 @@ const AwardsSection = () => {
             <FaChevronRight className="w-4 h-4 text-gray-600 group-hover:text-white transition-all duration-300" />
           </motion.button>
 
-          {/* Horizontal Scroll Container */}
           <motion.div
             ref={scrollRef}
-            className="flex overflow-x-auto py-8 px-4 snap-x snap-mandatory scrollbar-hide gap-8 cursor-grab active:cursor-grabbing"
+            className="flex overflow-x-auto py-8 px-4 snap-x snap-mandatory scrollbar-hide gap-8 cursor-grab"
             style={{ 
               scrollBehavior: 'smooth',
               scrollbarWidth: 'none',
@@ -274,7 +276,6 @@ const AwardsSection = () => {
             onMouseMove={handleMouseMove}
             onScroll={handleScroll}
           >
-            {/* Hide scrollbar for Webkit browsers */}
             <style jsx>{`
               .scrollbar-hide::-webkit-scrollbar {
                 display: none;
@@ -292,27 +293,23 @@ const AwardsSection = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
               >
-                {/* Achievement Style Card - Fixed Height */}
-                <div className={`relative bg-white rounded-xl overflow-hidden border transition-all duration-300 h-[480px] flex flex-col ${
-                  index === activeCard ? 'border-[#001C73] shadow-md' : 'border-gray-200 shadow-sm'
+                <div className={`relative bg-white rounded-xl overflow-hidden border-2 transition-all duration-300 h-[480px] flex flex-col ${
+                  index === activeCard ? 'border-gray-300' : 'border-gray-200'
                 }`}>
-                  {/* Year Badge */}
                   <div className="absolute top-4 right-4 z-20">
                     <div className="bg-[#001C73] text-white rounded-lg px-3 py-1 text-sm font-bold">
                       {award.year}
                     </div>
                   </div>
 
-                  {/* Icon Badge */}
                   <div className="absolute top-4 left-4 z-20">
-                    <div className="bg-white rounded-full p-3 shadow-sm border border-gray-200">
+                    <div className="bg-white rounded-full p-3 border border-gray-200">
                       <award.icon 
                         className="text-xl text-[#001C73]" 
                       />
                     </div>
                   </div>
 
-                  {/* Image Container - Fixed Height */}
                   <div className="relative h-56 overflow-hidden flex-shrink-0">
                     <Image
                       src={award.image}
@@ -322,30 +319,24 @@ const AwardsSection = () => {
                       priority
                     />
                     
-                    {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
                   </div>
 
-                  {/* Content Section - Flexible Height */}
                   <div className="p-6 flex flex-col flex-grow">
-                    {/* Category Tag */}
                     <div className="mb-3">
                       <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-[#001C73] text-white">
                         {award.category}
                       </span>
                     </div>
 
-                    {/* Title */}
                     <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 flex-shrink-0">
                       {award.title}
                     </h3>
                     
-                    {/* Description - Takes remaining space */}
                     <p className="text-gray-600 leading-relaxed text-sm mb-4 flex-grow">
                       {award.description}
                     </p>
 
-                    {/* Achievement Badge */}
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100 flex-shrink-0">
                       <span className="text-xs text-gray-500 font-medium">
                         AWARD RECIPIENT
@@ -360,7 +351,6 @@ const AwardsSection = () => {
             ))}
           </motion.div>
 
-          {/* Dots Indicator */}
           <motion.div 
             className="flex justify-center space-x-2 mt-8"
             initial={{ opacity: 0, y: 20 }}

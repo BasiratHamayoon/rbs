@@ -1,10 +1,20 @@
 "use client"
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import ProjectCard from './ProjectCard';
-import { categories } from '@/data/projectsData';
+import { useProject } from '@/context/ProjectContext';
 import { FaRegSadTear } from 'react-icons/fa';
 
 const ProjectTabs = ({ projects, activeCategory, onCategoryChange, onProjectSelect, loading }) => {
+  const { categories } = useProject();
+
+  const tabCategories = [
+    { id: 'all', name: 'All Projects' },
+    ...categories.map(cat => ({
+      id: cat.toLowerCase(),
+      name: cat
+    }))
+  ];
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -32,7 +42,6 @@ const ProjectTabs = ({ projects, activeCategory, onCategoryChange, onProjectSele
   return (
     <section id="projects-section" className="py-16 sm:py-20 lg:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Tabs Navigation */}
         <motion.div
           className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-12 sm:mb-16"
           variants={containerVariants}
@@ -40,7 +49,7 @@ const ProjectTabs = ({ projects, activeCategory, onCategoryChange, onProjectSele
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {categories.map((category) => (
+          {tabCategories.map((category) => (
             <motion.button
               key={category.id}
               onClick={() => onCategoryChange(category.id)}
@@ -59,13 +68,11 @@ const ProjectTabs = ({ projects, activeCategory, onCategoryChange, onProjectSele
           ))}
         </motion.div>
 
-        {/* Loading State */}
         {loading && (
           <motion.div 
             className="flex justify-center items-center py-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
           >
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-[#001C73] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -74,7 +81,6 @@ const ProjectTabs = ({ projects, activeCategory, onCategoryChange, onProjectSele
           </motion.div>
         )}
 
-        {/* Projects Grid */}
         {!loading && (
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
@@ -83,29 +89,25 @@ const ProjectTabs = ({ projects, activeCategory, onCategoryChange, onProjectSele
             animate="visible"
             key={activeCategory}
           >
-            <AnimatePresence mode="wait">
-              {currentProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  layout
-                >
-                  <ProjectCard 
-                    project={project} 
-                    onClick={() => onProjectSelect(project)}
-                    index={index}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {currentProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                variants={itemVariants}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                layout
+              >
+                <ProjectCard 
+                  project={project} 
+                  onClick={() => onProjectSelect(project)}
+                  index={index}
+                />
+              </motion.div>
+            ))}
           </motion.div>
         )}
 
-        {/* No Projects Message */}
         {!loading && currentProjects.length === 0 && (
           <motion.div 
             className="text-center py-16"

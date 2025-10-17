@@ -2,8 +2,6 @@
 import { motion } from 'framer-motion';
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-
-// Mock construction images - replace with your actual images
 import construction1 from '../../../public/About/1.jpg';
 import construction2 from '../../../public/About/2.jpg';
 import construction3 from '../../../public/About/3.jpg';
@@ -50,7 +48,6 @@ const MissionVisionCards = () => {
     }
   ];
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -122,20 +119,28 @@ const MissionVisionCards = () => {
       scrollRef.current.scrollLeft += 400;
     }
   };
-
-  // Mouse drag handlers
   const handleMouseDown = (e) => {
     isDragging.current = true;
     startX.current = e.pageX - scrollRef.current.offsetLeft;
     scrollLeft.current = scrollRef.current.scrollLeft;
+    scrollRef.current.style.cursor = 'grabbing';
+    scrollRef.current.style.userSelect = 'none';
   };
 
   const handleMouseLeave = () => {
     isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.removeProperty('user-select');
+    }
   };
 
   const handleMouseUp = () => {
     isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.removeProperty('user-select');
+    }
   };
 
   const handleMouseMove = (e) => {
@@ -145,12 +150,10 @@ const MissionVisionCards = () => {
     const walk = (x - startX.current) * 2;
     scrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
-
-  // Update active card on scroll
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollPosition = scrollRef.current.scrollLeft;
-      const cardWidth = 400; // 320px card + 80px gap
+      const cardWidth = 400; 
       const newActive = Math.round(scrollPosition / cardWidth);
       if (newActive !== activeCard) {
         setActiveCard(newActive);
@@ -161,7 +164,6 @@ const MissionVisionCards = () => {
   return (
     <section className="relative py-20 bg-gradient-to-br from-gray-50 to-white overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Section Header */}
         <motion.div 
           className="text-center mb-16"
           initial="hidden"
@@ -194,17 +196,13 @@ const MissionVisionCards = () => {
             Building the future with purpose, passion, and precision
           </motion.p>
         </motion.div>
-
-        {/* Cards Container with Navigation */}
         <div className="relative">
-          {/* Navigation Buttons with Enhanced Hover Effects */}
           <motion.button
             onClick={scrollLeftHandler}
-            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group border border-gray-200"
+            className="absolute -left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 group border border-gray-200"
             whileHover={{ 
               scale: 1.1,
-              backgroundColor: '#001C73',
-              boxShadow: '0 20px 40px rgba(0, 28, 115, 0.3)'
+              backgroundColor: '#001C73'
             }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, x: -20 }}
@@ -224,11 +222,10 @@ const MissionVisionCards = () => {
 
           <motion.button
             onClick={scrollRightHandler}
-            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group border border-gray-200"
+            className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 group border border-gray-200"
             whileHover={{ 
               scale: 1.1,
-              backgroundColor: '#001C73',
-              boxShadow: '0 20px 40px rgba(0, 28, 115, 0.3)'
+              backgroundColor: '#001C73'
             }}
             whileTap={{ scale: 0.95 }}
             initial={{ opacity: 0, x: 20 }}
@@ -245,11 +242,9 @@ const MissionVisionCards = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </motion.button>
-
-          {/* Cards Scroll Container */}
           <motion.div
             ref={scrollRef}
-            className="flex overflow-x-auto py-8 px-4 snap-x snap-mandatory scrollbar-hide gap-8 cursor-grab active:cursor-grabbing"
+            className="flex overflow-x-auto py-8 px-4 snap-x snap-mandatory scrollbar-hide gap-8 cursor-grab"
             style={{ 
               scrollBehavior: 'smooth',
               scrollbarWidth: 'none',
@@ -265,7 +260,6 @@ const MissionVisionCards = () => {
             onMouseMove={handleMouseMove}
             onScroll={handleScroll}
           >
-            {/* Hide scrollbar for Webkit browsers */}
             <style jsx>{`
               .scrollbar-hide::-webkit-scrollbar {
                 display: none;
@@ -283,18 +277,14 @@ const MissionVisionCards = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
               >
-                {/* Card with Achievement Style */}
                 <div className={`relative bg-white rounded-xl border-2 transition-all duration-300 pb-4 flex flex-col ${
-                  index === activeCard ? 'border-[#001C73] shadow-md' : 'border-gray-200 shadow-sm'
+                  index === activeCard ? 'border-gray-300' : 'border-gray-200'
                 }`}>
-                  {/* Type Badge */}
                   <div className="absolute top-4 right-4 z-20">
                     <div className="bg-[#001C73] text-white rounded-lg px-3 py-1 text-sm font-bold capitalize">
                       {card.type}
                     </div>
                   </div>
-
-                  {/* Image Container */}
                   <div className="relative h-48 overflow-hidden flex-shrink-0">
                     <Image
                       src={card.image}
@@ -303,24 +293,15 @@ const MissionVisionCards = () => {
                       className="object-cover"
                       priority
                     />
-                    
-                    {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
-
-                  {/* Content Section */}
                   <div className="p-6 flex flex-col flex-grow">
-                    {/* Title */}
                     <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 flex-shrink-0">
                       {card.title}
                     </h3>
-                    
-                    {/* Description */}
                     <p className="text-gray-600 leading-relaxed text-sm mb-6 flex-grow">
                       {card.description}
                     </p>
-
-                    {/* Bottom Badge */}
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4 flex-shrink-0">
                       <span className="text-xs text-gray-500 font-medium">
                         CORE PRINCIPLE
@@ -336,8 +317,6 @@ const MissionVisionCards = () => {
               </motion.div>
             ))}
           </motion.div>
-
-          {/* Dots Indicator */}
           <motion.div 
             className="flex justify-center space-x-2 mt-8"
             initial={{ opacity: 0, y: 20 }}

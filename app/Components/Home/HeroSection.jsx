@@ -158,18 +158,7 @@ const HeroSection = () => {
         {/* Loading State */}
         {!isVideoLoaded && (
           <div className="absolute inset-0 z-20 bg-gray-900 flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-white text-center"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 border-4 border-[#001C73] border-t-transparent rounded-full mx-auto mb-4"
-              />
-              <p>Loading experience...</p>
-            </motion.div>
+            <Loader />
           </div>
         )}
 

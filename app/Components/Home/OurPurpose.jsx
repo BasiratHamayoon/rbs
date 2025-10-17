@@ -318,7 +318,7 @@ function OurPurpose() {
 
           {/* Stats Section - Now at bottom */}
           <motion.div 
-            className="grid grid-cols-3 gap-6 pt-8"
+            className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 pt-8"
             variants={containerVariants}
           >
             {[

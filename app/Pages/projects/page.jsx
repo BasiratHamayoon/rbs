@@ -1,8 +1,7 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-import { projectsData, categories } from '@/data/projectsData';
+import { useProject } from '@/context/ProjectContext';
 import HeroSection from '@/Components/project/HeroSection';
 import QualitySection from '@/Components/project/QualitySection';
 import ProjectTabs from '@/Components/project/ProjectTabs';
@@ -11,25 +10,11 @@ import ProjectModal from '@/Components/project/ProjectModal';
 const Page = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [projects, setProjects] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { projects, loading, fetchProjects } = useProject();
 
-  // Load projects directly from data file (no API call needed)
-  useEffect(() => {
-    setLoading(true);
-    
-    // Simulate loading delay
-    const timer = setTimeout(() => {
-      setProjects(projectsData);
-      setLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Handle category change
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
+    fetchProjects(category);
   };
 
   const pageVariants = {
@@ -63,13 +48,10 @@ const Page = () => {
       animate="in"
       exit="out"
     >
-      {/* Hero Section */}
       <HeroSection />
       
-      {/* Quality Section */}
       <QualitySection />
       
-      {/* Projects Tabs Section */}
       <ProjectTabs
         projects={projects}
         activeCategory={activeCategory}
@@ -78,7 +60,6 @@ const Page = () => {
         loading={loading}
       />
 
-      {/* Project Detail Modal */}
       <AnimatePresence mode="wait">
         {selectedProject && (
           <ProjectModal 

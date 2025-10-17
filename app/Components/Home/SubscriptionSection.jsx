@@ -59,8 +59,6 @@ function SubscriptionSection() {
       });
     }
   };
-
-  // Enhanced Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -122,8 +120,6 @@ function SubscriptionSection() {
       }
     }
   };
-
-  // Enhanced Social Icon Animations
   const socialIconVariants = {
     hidden: { 
       scale: 0, 
@@ -146,9 +142,6 @@ function SubscriptionSection() {
       scale: 1.3,
       rotate: [0, -10, 10, -5, 5, 0],
       y: -8,
-      backgroundColor: "#001C73",
-      color: "#ffffff",
-      boxShadow: "0 15px 30px rgba(0, 28, 115, 0.4)",
       transition: {
         duration: 0.6,
         ease: "easeInOut"
@@ -170,19 +163,6 @@ function SubscriptionSection() {
         duration: 4,
         repeat: Infinity,
         ease: "easeInOut"
-      }
-    }
-  };
-
-  const cardHoverVariants = {
-    hover: {
-      y: -15,
-      scale: 1.02,
-      boxShadow: "0 35px 60px -12px rgba(0, 28, 115, 0.25)",
-      borderColor: "#001C73",
-      transition: {
-        duration: 0.4,
-        ease: "easeOut"
       }
     }
   };
@@ -263,18 +243,8 @@ function SubscriptionSection() {
     }
   };
 
-  const floatingAnimation = {
-    y: [0, -20, 0],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  };
-
   return (
     <section className="relative min-h-screen flex flex-col justify-center items-center py-20 bg-white overflow-hidden">
-      {/* Enhanced Background decorative elements */}
       <motion.div 
         className="absolute top-20 right-10 w-32 h-32 bg-[#001C73]/10 rounded-full blur-3xl"
         animate={pulseGlow}
@@ -294,7 +264,6 @@ function SubscriptionSection() {
         }}
       />
 
-      {/* Floating particles */}
       <motion.div 
         className="absolute top-1/3 left-1/4 w-3 h-3 bg-[#001C73]/30 rounded-full"
         animate={{
@@ -331,7 +300,6 @@ function SubscriptionSection() {
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
       >
-        {/* Enhanced Header Section */}
         <motion.div 
           className="text-center mb-20"
           variants={slideUpVariants}
@@ -373,8 +341,6 @@ function SubscriptionSection() {
             Connect with us and explore our comprehensive construction solutions
           </motion.p>
         </motion.div>
-
-        {/* Enhanced Social Icons with New Animations */}
         <motion.div 
           className="flex justify-center items-center gap-8 lg:gap-12 mb-20"
           variants={containerVariants}
@@ -386,7 +352,7 @@ function SubscriptionSection() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={social.label}
-              className="bg-white p-5 rounded-3xl text-[#001C73] cursor-pointer relative overflow-hidden group shadow-2xl border-2 border-[#001C73]/20 hover:border-[#001C73] transition-all duration-300"
+              className="bg-white p-5 rounded-3xl text-[#001C73] cursor-pointer relative overflow-hidden group shadow-2xl border-2 border-[#001C73]/20 transition-all duration-300"
               custom={index}
               variants={socialIconVariants}
               initial="hidden"
@@ -399,8 +365,6 @@ function SubscriptionSection() {
               <div className="relative z-10">
                 {social.icon}
               </div>
-              
-              {/* Enhanced Tooltip */}
               <motion.div
                 className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-[#001C73] text-white px-3 py-2 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 whitespace-nowrap shadow-lg"
                 initial={{ y: 20, scale: 0.8 }}
@@ -410,23 +374,9 @@ function SubscriptionSection() {
                 {social.label}
                 <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[#001C73] rotate-45" />
               </motion.div>
-
-              {/* Ripple Effect */}
-              <motion.div
-                className="absolute inset-0 rounded-3xl border-2 border-[#001C73] opacity-0"
-                whileHover={{
-                  opacity: 1,
-                  scale: 1.1,
-                  transition: {
-                    duration: 0.4
-                  }
-                }}
-              />
             </motion.a>
           ))}
         </motion.div>
-
-        {/* Enhanced Cards Grid */}
         <motion.div 
           className="grid lg:grid-cols-2 grid-cols-1 justify-center items-stretch gap-12 lg:gap-16 w-full"
           variants={containerVariants}
@@ -434,17 +384,13 @@ function SubscriptionSection() {
           {cards.map((card, index) => (
             <motion.div
               key={index}
-              className="bg-white px-10 py-10 flex flex-col gap-10 justify-between text-gray-800 rounded-3xl shadow-2xl relative overflow-hidden group h-full border-2 border-gray-100 hover:border-[#001C73] transition-all duration-500"
+              className="bg-white px-10 py-10 flex flex-col gap-10 justify-between text-gray-800 rounded-3xl shadow-2xl relative overflow-hidden group h-full border-2 border-gray-100 transition-all duration-500"
               variants={index % 2 === 0 ? slideInLeftVariants : slideInRightVariants}
-              whileHover="hover"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
-              {/* Enhanced Background Pattern */}
               <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50/80 to-white" />
-              
-              {/* Enhanced Header */}
               <motion.div 
                 className="text-center relative z-10"
                 variants={staggerTextVariants}
@@ -472,15 +418,13 @@ function SubscriptionSection() {
                   Solutions & Services
                 </motion.p>
               </motion.div>
-
-              {/* Enhanced Image Section */}
               <motion.div 
                 className="w-full overflow-hidden rounded-2xl flex-1 min-h-[250px] max-h-[280px] relative"
-                whileHover="hover"
               >
                 <motion.div
                   variants={imageHoverVariants}
                   className="w-full h-full"
+                  whileHover="hover"
                 >
                   <Image
                     src={card.image}
@@ -490,8 +434,6 @@ function SubscriptionSection() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 </motion.div>
-                
-                {/* Enhanced Type Badge */}
                 <motion.div 
                   className="absolute top-6 left-6 bg-gradient-to-br from-[#001C73] to-[#0026A3] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg"
                   initial={{ scale: 0, rotate: -180 }}
@@ -511,8 +453,6 @@ function SubscriptionSection() {
                   {card.type}
                 </motion.div>
               </motion.div>
-
-              {/* Enhanced Description with Black Text */}
               <motion.div 
                 className="text-center flex-1 px-4"
                 variants={paragraphVariants}
@@ -524,8 +464,6 @@ function SubscriptionSection() {
                   {card.description}
                 </p>
               </motion.div>
-
-              {/* Enhanced Button with Scroll Functionality */}
               <motion.button
                 onClick={scrollToQuoteSection}
                 className="border-2 border-[#001C73] px-4 py-2 rounded-xl cursor-pointer text-lg relative overflow-hidden group/btn text-[#001C73] hover:text-white transition-colors duration-300"
